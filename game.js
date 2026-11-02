@@ -41,15 +41,15 @@ const bullehShah = {
 };
 
 // Dynamic Game Objects
-let entities =; 
-let particleSystem =;
+let entities = []; 
+let particleSystem = [];
 let spawnTimer = 0;
 let bossMode = false;
 
 // 3D Perspective Properties
 const VANISHING_POINT_Y = 180; // Horizon height line
 
-// Upgraded Flavor Dictionary with full text configurations and shield logic hooks
+// Flavor Configuration Lookups
 const FLAVORS = {
     'Classic': { color: '#F40009', buff: 'Health Restore +25' },
     'Cherry':  { color: '#800020', buff: 'Fire Slash (2x DMG)' },
@@ -121,8 +121,8 @@ function initGame() {
     henny.y = 300;
     henny.vy = 0;
     henny.isJumping = false;
-    entities =;
-    particleSystem =;
+    entities = [];
+    particleSystem = [];
     bossMode = false;
     gameActive = true;
     screenOverlay.classList.add('hidden');
@@ -139,7 +139,7 @@ function endGame(victory = false) {
 function update() {
     if (!gameActive) return;
 
-    // Standard high-score victory watch rule (Extended to 10,000 points)
+    // Victory milestone cap check (Set to 10,000 points)
     if (score >= 10000) {
         endGame(true);
         return;
@@ -196,19 +196,19 @@ function update() {
 
     spawnTimer++;
     
-    // MODIFIED: Fire Spitting Dragon Elder Boss spawns much earlier now (At 500 points instead of 1500)
+    // Boss spawns early at 500 points
     if (!bossMode && score >= 500) {
         bossMode = true;
-        entities.push({ type: 'boss', x: 850, y: 100, z: -30, width: 110, height: 110, health: 35, vy: 1.5 }); // Boss health extended to match 10k pace
+        entities.push({ type: 'boss', x: 850, y: 100, z: -30, width: 110, height: 110, health: 35, vy: 1.5 });
     }
 
-    // Spawning waves loop
+    // Spawning wave controllers
     if (spawnTimer % 80 === 0) {
         let zPos = (Math.random() - 0.5) * 40; 
         entities.push({ type: 'dragon', x: 820, y: Math.random() * 120 + 60, z: zPos, width: 45, height: 45, speed: Math.random() * 2 + 2.5 });
     }
     if (spawnTimer % 120 === 0) {
-        const types = ['Classic', 'Cherry', 'Diet', 'Zero']; // Added Coke Zero to item system
+        const types = ['Classic', 'Cherry', 'Diet', 'Zero']; 
         entities.push({ type: 'coke', x: Math.random() * 600 + 100, y: -20, z: 0, width: 22, height: 36, flavor: types[Math.floor(Math.random() * types.length)] });
     }
 
@@ -232,7 +232,6 @@ function update() {
             ent.y += ent.vy;
             if (ent.y < 40 || ent.y > 180) ent.vy *= -1;
 
-            // Spits fireballs progressively faster as boss stays alive
             let spitRate = ent.health < 15 ? 30 : 45;
             if (spawnTimer % spitRate === 0) {
                 entities.push({ type: 'fireball', x: ent.x, y: ent.y + 40, z: ent.z, width: 18, height: 18, speed: 6.5 });
@@ -253,9 +252,8 @@ function update() {
             if (checkCollision(henny, ent)) {
                 henny.cokeMeter = Math.min(100, henny.cokeMeter + 20);
                 henny.flavor = ent.flavor;
-                henny.flavorTimer = 300; // 5 seconds buff duration
+                henny.flavorTimer = 300; 
 
-                // Classic instantly heals instead of timed countdowns
                 if (ent.flavor === 'Classic') {
                     henny.health = Math.min(100, henny.health + 25);
                 }
@@ -278,21 +276,21 @@ function update() {
             }
             if (bullehShah.isAttacking && checkCollision(bullehShah, ent)) {
                 hit = true;
-                dmg = 3; // Buffed cat sidekick claw damage to keep up with extended loop
+                dmg = 3; 
             }
 
             if (hit) {
                 spawnParticle(ent.x, ent.y, '#F40009');
                 if (ent.type === 'dragon') {
-entities.splice(i, 1);
-score += 100;
-} else {
-ent.health -= dmg;
-score += 40; // Grant points on each hit against the boss to help reach 10k
-if (ent.health <= 0) {
-entities.splice(i, 1);
-score += 2000; // Defeating the boss gives a massive boost towards 10k!
-bossMode = false; // Reset boss tracker so a fresh elder dragon can arrive later
+                    entities.splice(i, 1);
+                    score += 100;
+                } else {
+                    ent.health -= dmg;
+                    score += 40; // Earn points on every hit
+                    if (ent.health <= 0) {
+                        entities.splice(i, 1);
+                        score += 2000; // Large reward bonus toward 10,000 pts
+bossMode = false; // Reset state so a fresh dragon boss returns later
 }
 }
 continue;
@@ -391,7 +389,7 @@ ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 12px "Courier New", monospace';
 ctx.textAlign = 'center';
 ctx.fillText('HENNY', henny.width / 2, -12);
-// If Zero Sugar Invincibility is active, flash a neon electric shield layer
+// If Zero Sugar Invincibility shield is active, draw a neon halo ring
 if (henny.isInvincible && spawnTimer % 6 < 3) {
 ctx.strokeStyle = '#00ffcc';
 ctx.lineWidth = 4;
@@ -415,7 +413,7 @@ ctx.fillStyle = '#8c92ac'; ctx.fillRect(-6, 10, 8, 25);
 ctx.fillStyle = '#ffd700'; ctx.fillRect(-8, 30, 12, 4);
 }
 ctx.restore();
-// 5. Draw Obstacles & Items with 3D Depth
+// 5. Draw Obstacles & Items with Dynamic 3D Scale
 entities.forEach(ent => {
 let zScale = get3DScale(ent.z || 0);
 ctx.save();
@@ -447,6 +445,7 @@ let fireGrad = ctx.createRadialGradient(7, 7, 2, 7, 7, 10);
 fireGrad.addColorStop(0, '#ffffff'); fireGrad.addColorStop(0.3, '#ffcc00'); fireGrad.addColorStop(1, 'rgba(255, 0, 0, 0)');
 ctx.fillStyle = fireGrad; ctx.beginPath(); ctx.arc(7, 7, 12, 0, Math.PI*2); ctx.fill();
 }
+// FIXED COLOR MAP: Reads dynamically from the flavor index colors matrix array
 if (ent.type === 'coke') {
 ctx.fillStyle = FLAVORS[ent.flavor].color;
 ctx.fillRect(0, 0, ent.width, ent.height);
@@ -458,7 +457,7 @@ ctx.fillStyle = '#b0b7bd'; ctx.fillRect(2, -2, ent.width - 4, 2);
 }
 ctx.restore();
 });
-// 6. Particles pipeline bloom
+// 6. Particles
 particleSystem.forEach(p => {
 ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 3, 3);
 });
