@@ -15,16 +15,18 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    width: 100vw;
     overflow: hidden;
-    padding: 10px;
+    padding: 0;
 }
 
+/* Master Game Layout Box */
 #game-container {
     position: relative;
-    width: 100%;
+    width: 100vw;
+    height: 50vw; /* Hard locks perfect 2:1 ratio relative to screen width */
     max-width: 800px;
-    height: auto;
-    aspect-ratio: 2 / 1; /* Forces 800x400 math perfectly without stretching */
+    max-height: 400px;
     background: #000;
     border: 3px solid #F40009;
     border-radius: 8px;
@@ -35,19 +37,18 @@ canvas {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Prevents pixels from morphing or leaking offscreen */
 }
 
-/* Responsive Adaptive Top UI Bar */
+/* UI Top Stats Bar */
 #ui-overlay {
     position: absolute;
-    top: 2%;
-    left: 2%;
-    right: 2%;
+    top: 10px;
+    left: 10px;
+    right: 10px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
-    gap: 5px;
+    z-index: 5;
 }
 
 .stat-box {
@@ -56,37 +57,35 @@ canvas {
     border-radius: 4px;
     border: 1px solid #ff4444;
     font-weight: bold;
-    font-size: calc(10px + 0.5vw); /* Scale dynamically based on screen real estate */
-    white-space: nowrap;
+    font-size: 12px;
 }
 
 #flavor-badge {
     position: absolute;
-    top: 45px;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
     background: #F40009;
     color: white;
     padding: 4px 10px;
     font-weight: bold;
-    font-size: calc(9px + 0.4vw); /* Automatically scales Coke flavor buffs safely */
+    font-size: 11px;
     border-radius: 20px;
     text-transform: uppercase;
     box-shadow: 0 0 10px #fff;
-    max-width: 90vw;
-    text-align: center;
+    white-space: nowrap;
 }
 
 .hidden { display: none !important; }
 
-/* Overlay Screens */
+/* Menu Screens */
 .screen {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(12, 8, 18, 0.9);
+    background: rgba(12, 8, 18, 0.9) ;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -98,15 +97,13 @@ canvas {
 
 h1 {
     color: #F40009;
-    font-size: calc(18px + 2vw);
-    margin-bottom: 10px;
-    text-shadow: 2px 2px #000, 0 0 10px rgba(255,255,255,0.3);
+    font-size: 28px;
+    margin-bottom: 5px;
 }
 
 p {
-    font-size: calc(11px + 0.5vw);
-    margin-bottom: 20px;
-    max-width: 80%;
+    font-size: 14px;
+    margin-bottom: 15px;
 }
 
 button#start-btn {
@@ -114,67 +111,90 @@ button#start-btn {
     color: #fff;
     border: none;
     padding: 8px 24px;
-    font-size: calc(12px + 0.5vw);
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
     border-radius: 4px;
 }
 
-/* Touch Control Layer overrides */
+/* Touch Control Layer - Completely Redesigned for Short Landscape Screen Spacing */
 #mobile-controls {
     display: none;
     position: absolute;
-    bottom: -85px; /* Safely clears the canvas box display */
-    left: 0;
-    right: 0;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
     justify-content: space-between;
-    padding: 0 10px;
     pointer-events: none;
+    z-index: 20;
 }
 
 .d-pad, .action-buttons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     pointer-events: auto;
 }
 
 .ctrl-btn {
-    width: 50px;
-    height: 50px;
-    background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     color: white;
     border-radius: 50%;
-    font-size: 14px;
+    font-size: 11px;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
     outline: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
 
 .ctrl-btn:active {
-    background: rgba(244, 0, 9, 0.7);
+    background: rgba(244, 0, 9, 0.85);
     border-color: #fff;
 }
 
 .action-btn {
-    width: 65px;
-    border-radius: 10px;
-    font-size: 11px;
+    width: 58px;
+    border-radius: 8px;
 }
 
-/* Media optimization framework when accessed via a phone */
+/* Mobile Media Queries Matrix */
 @media (max-width: 850px) {
-    body {
-        flex-direction: column;
-        justify-content: flex-start;
-        padding-top: 20px;
+    /* If user tries to hold phone vertically (Portrait mode) */
+    @media (orientation: portrait) {
+        #game-container {
+            width: 90vw;
+            height: 45vw; /* Keeps it sharp, but small */
+        }
+        #mobile-controls {
+            display: none; /* Hide play inputs while phone is vertical to prevent breaking font sizes */
+        }
     }
-    #game-container {
-        margin-bottom: 95px; /* Creates explicit buffer room for controls */
-    }
-    #mobile-controls {
-        display: flex;
+
+    /* True Native Game Fit when device is spun horizontally (Landscape mode) */
+    @media (orientation: landscape) {
+        body {
+            padding: 0;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh; /* Takes up the complete screen footprint cleanly */
+            max-width: none;
+            max-height: none;
+            border: none;
+            border-radius: 0;
+        }
+        #mobile-controls {
+            display: flex;
+            position: absolute;
+            bottom: 15px; /* Places control interface directly over the lower edges of the graphics canvas */
+        }
+        .stat-box {
+            font-size: 11px;
+            padding: 2px 6px;
+        }
     }
 }
