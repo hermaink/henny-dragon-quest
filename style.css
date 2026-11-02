@@ -12,21 +12,22 @@ body {
     font-family: 'Courier New', Courier, monospace;
     color: #fff;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     width: 100vw;
     overflow: hidden;
-    padding: 0;
+    padding: 10px;
 }
 
 /* Master Game Layout Box */
 #game-container {
     position: relative;
-    width: 100vw;
-    height: 50vw; /* Hard locks perfect 2:1 ratio relative to screen width */
+    width: 100%;
     max-width: 800px;
-    max-height: 400px;
+    height: auto;
+    aspect-ratio: 2 / 1; /* Locks perfect proportion canvas matrix */
     background: #000;
     border: 3px solid #F40009;
     border-radius: 8px;
@@ -37,6 +38,7 @@ canvas {
     display: block;
     width: 100%;
     height: 100%;
+    object-fit: contain;
 }
 
 /* UI Top Stats Bar */
@@ -57,7 +59,7 @@ canvas {
     border-radius: 4px;
     border: 1px solid #ff4444;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 #flavor-badge {
@@ -85,7 +87,7 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(12, 8, 18, 0.9) ;
+    background: rgba(12, 8, 18, 0.9);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -97,12 +99,12 @@ canvas {
 
 h1 {
     color: #F40009;
-    font-size: 28px;
+    font-size: 24px;
     margin-bottom: 5px;
 }
 
 p {
-    font-size: 14px;
+    font-size: 13px;
     margin-bottom: 15px;
 }
 
@@ -117,13 +119,13 @@ button#start-btn {
     border-radius: 4px;
 }
 
-/* Touch Control Layer - Completely Redesigned for Short Landscape Screen Spacing */
+/* Redesigned Touch Control Layer - Overlays directly over the gameplay canvas corners safely */
 #mobile-controls {
-    display: none;
+    display: none; /* Controlled by Media Query below */
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
     justify-content: space-between;
     pointer-events: none;
     z-index: 20;
@@ -131,15 +133,15 @@ button#start-btn {
 
 .d-pad, .action-buttons {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     pointer-events: auto;
 }
 
 .ctrl-btn {
-    width: 44px;
-    height: 44px;
-    background: rgba(255, 255, 255, 0.25);
-    border: 2px solid rgba(255, 255, 255, 0.4);
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.3); /* Slightly brighter background for clear visibility */
+    border: 2px solid rgba(255, 255, 255, 0.5);
     color: white;
     border-radius: 50%;
     font-size: 11px;
@@ -148,53 +150,30 @@ button#start-btn {
     justify-content: center;
     align-items: center;
     outline: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.6);
 }
 
 .ctrl-btn:active {
-    background: rgba(244, 0, 9, 0.85);
+    background: rgba(244, 0, 9, 0.9);
     border-color: #fff;
 }
 
 .action-btn {
-    width: 58px;
+    width: 60px;
     border-radius: 8px;
 }
 
-/* Mobile Media Queries Matrix */
+/* Hardcoded Mobile Layout Fix - Forces visibility regardless of phone angle */
 @media (max-width: 850px) {
-    /* If user tries to hold phone vertically (Portrait mode) */
-    @media (orientation: portrait) {
-        #game-container {
-            width: 90vw;
-            height: 45vw; /* Keeps it sharp, but small */
-        }
-        #mobile-controls {
-            display: none; /* Hide play inputs while phone is vertical to prevent breaking font sizes */
-        }
+    body {
+        padding: 5px;
     }
-
-    /* True Native Game Fit when device is spun horizontally (Landscape mode) */
-    @media (orientation: landscape) {
-        body {
-            padding: 0;
-        }
-        #game-container {
-            width: 100vw;
-            height: 100vh; /* Takes up the complete screen footprint cleanly */
-            max-width: none;
-            max-height: none;
-            border: none;
-            border-radius: 0;
-        }
-        #mobile-controls {
-            display: flex;
-            position: absolute;
-            bottom: 15px; /* Places control interface directly over the lower edges of the graphics canvas */
-        }
-        .stat-box {
-            font-size: 11px;
-            padding: 2px 6px;
-        }
+    #game-container {
+        width: 100vw;
+        max-width: 100%;
+        height: auto;
+    }
+    #mobile-controls {
+        display: flex; /* Forces buttons to re-render overlay permanently on smaller screens */
     }
 }
