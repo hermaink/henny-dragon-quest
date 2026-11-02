@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Henny & Bulleh Shah: Dragon Quest</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Main Game Canvas -->
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+        <!-- UI Overlay -->
+        <div id="ui-overlay">
+            <div class="stat-box">❤️ Henny: <span id="health-display">100</span>%</div>
+            <div class="stat-box">🥤 Coke Meter: <span id="coke-display">0</span>%</div>
+            <div class="stat-box">🎯 Score: <span id="score-display">0</span></div>
+            <div id="flavor-badge" class="hidden">Classic</div>
+        </div>
+
+        <!-- Start / Game Over Screen -->
+        <div id="screen-overlay" class="screen">
+            <h1 id="screen-title">HENNY & BULLEH SHAH</h1>
+            <p id="screen-desc">Fight dragons, collect Coca-Cola, and storm the castle!</p>
+            <button id="start-btn">PLAY GAME</button>
+        </div>
+
+        <!-- Mobile Touch Controls -->
+        <div id="mobile-controls">
+            <div class="d-pad">
+                <button id="btn-left" class="ctrl-btn">◀</button>
+                <button id="btn-right" class="ctrl-btn">▶</button>
+            </div>
+            <div class="action-buttons">
+                <button id="btn-claw" class="ctrl-btn action-btn">🐾 CLAW</button>
+                <button id="btn-slash" class="ctrl-btn action-btn">⚔️ SLASH</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
