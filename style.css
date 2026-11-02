@@ -21,13 +21,43 @@ body {
     padding: 15px;
 }
 
+/* Dedicated Notification space directly above the gameplay screen */
+#banner-container {
+    width: 100%;
+    max-width: 800px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+#flavor-badge {
+    background: #F40009; /* Coca-Cola Red Base */
+    color: white;
+    padding: 6px 16px;
+    font-weight: bold;
+    font-size: 13px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+    border: 1px solid #fff;
+    white-space: nowrap;
+    animation: alertPulse 1.5s infinite alternate;
+}
+
+@keyframes alertPulse {
+    0% { transform: scale(1); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+    100% { transform: scale(1.03); box-shadow: 0 0 20px rgba(244,0,9,0.8); }
+}
+
 /* Main Game Window */
 #game-container {
     position: relative;
     width: 100%;
     max-width: 800px;
     height: auto;
-    aspect-ratio: 2 / 1; /* Keeps internal canvas box perfectly proportioned */
+    aspect-ratio: 2 / 1;
     background: #000;
     border: 3px solid #F40009;
     border-radius: 8px;
@@ -41,7 +71,7 @@ canvas {
     object-fit: contain;
 }
 
-/* Top Bar Stats Display */
+/* Top Bar Stats Inside the Window */
 #ui-overlay {
     position: absolute;
     top: 10px;
@@ -62,25 +92,9 @@ canvas {
     font-size: 11px;
 }
 
-#flavor-badge {
-    position: absolute;
-    top: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #F40009;
-    color: white;
-    padding: 4px 10px;
-    font-weight: bold;
-    font-size: 11px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    box-shadow: 0 0 10px #fff;
-    white-space: nowrap;
-}
-
 .hidden { display: none !important; }
 
-/* Menu Overlays */
+/* Menu Screens */
 .screen {
     position: absolute;
     top: 0;
@@ -119,12 +133,12 @@ button#start-btn {
     border-radius: 4px;
 }
 
-/* Portrait Mode Input Pad: Placed safely underneath the game window box layout stream */
+/* Portrait Mobile Layout Pads */
 #mobile-controls {
-    display: none; /* Hidden on desktop screens */
+    display: none;
     width: 100%;
     max-width: 800px;
-    margin-top: 20px; /* Creates clean spacing right below the canvas */
+    margin-top: 20px;
     justify-content: space-between;
     align-items: center;
     pointer-events: none;
@@ -166,7 +180,7 @@ button#start-btn {
 /* Mobile Screens Adaptation Rules */
 @media (max-width: 850px) {
     body {
-        justify-content: center; /* Center the layout vertically on mobile screens */
+        justify-content: center;
         padding: 10px;
     }
     
@@ -176,6 +190,6 @@ button#start-btn {
     }
     
     #mobile-controls {
-        display: flex; /* Makes the control bar visible right under the game container */
+        display: flex;
     }
 }
