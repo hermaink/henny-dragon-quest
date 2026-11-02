@@ -1,5 +1,13 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+// Fix Canvas Text Stretching & Resolution on Retina/Mobile screens
+function fixCanvasResolution() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = 800; // Locks engine coordinate math width
+    canvas.height = 400; // Locks engine coordinate math height
+}
+window.addEventListener('resize', fixCanvasResolution);
+fixCanvasResolution();
 
 // UI Elements
 const healthDisplay = document.getElementById('health-display');
