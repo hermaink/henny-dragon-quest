@@ -77,7 +77,6 @@ function triggerClaw() {
     if (!bullehShah.isAttacking) {
         bullehShah.isAttacking = true;
         bullehShah.attackTimer = 25;
-        // Search for nearest enemy target direction
         let closest = entities.find(e => e.type === 'dragon' || e.type === 'boss');
         bullehShah.targetX = closest ? closest.x : henny.x + 150;
         bullehShah.targetY = closest ? closest.y : henny.y;
@@ -119,14 +118,12 @@ function endGame(victory = false) {
 function update() {
     if (!gameActive) return;
 
-    // Movement updates
     henny.speed = henny.flavor === 'Diet' ? henny.baseSpeed * 1.8 : henny.baseSpeed;
     if (keys['ArrowLeft'] && henny.x > 0) henny.x -= henny.speed;
     if (keys['ArrowRight'] && henny.x < canvas.width - henny.width) henny.x += henny.speed;
     if (keys[' '] || keys['f']) triggerSlash();
     if (keys['c'] || keys['e']) triggerClaw();
 
-    // Power-up countdown systems
     if (henny.flavorTimer > 0) {
         henny.flavorTimer--;
         if (henny.flavorTimer === 0) {
@@ -135,14 +132,12 @@ function update() {
         }
     }
 
-    // Companion AI state updates
     if (bullehShah.isAttacking) {
         bullehShah.x += (bullehShah.targetX - bullehShah.x) * 0.15;
         bullehShah.y += (bullehShah.targetY - bullehShah.y) * 0.15;
         bullehShah.attackTimer--;
         if (bullehShah.attackTimer <= 0) bullehShah.isAttacking = false;
     } else {
-        // Natural lagging tether tracking back to Henny
         bullehShah.x += ((henny.x - 30) - bullehShah.x) * 0.08;
         bullehShah.y += ((henny.y + 25) - bullehShah.y) * 0.08;
     }
@@ -152,7 +147,6 @@ function update() {
         if (henny.slashTimer <= 0) henny.isSlashing = false;
     }
 
-    // Engine spawning orchestrator
     spawnTimer++;
     if (!bossMode && score >= 1500) {
         bossMode = true;
@@ -167,16 +161,13 @@ function update() {
         entities.push({ type: 'coke', x: Math.random() * 600 + 100, y: -20, width: 20, height: 35, flavor: types[Math.floor(Math.random() * types.length)] });
     }
 
-    // Entity simulation loop
     for (let i = entities.length - 1; i >= 0; i--) {
         const ent = entities[i];
 
         if (ent.type === 'dragon') {
             ent.x -= ent.speed;
-            // Hover logic simulation
             ent.y += Math.sin(spawnTimer * 0.05) * 1.5;
             
-            // Interaction Check against Player
             if (checkCollision(henny, ent)) {
                 henny.health -= 15;
                 spawnParticle(ent.x, ent.y, '#ff3333');
@@ -190,7 +181,6 @@ function update() {
             ent.y += ent.vy;
             if (ent.y < 30 || ent.y > 220) ent.vy *= -1;
 
-            // Attack projectile generator
             if (spawnTimer % 45 === 0) {
                 entities.push({ type: 'fireball', x: ent.x, y: ent.y + 40, width: 15, height: 15, speed: 6 });
             }
@@ -206,11 +196,11 @@ function update() {
         }
 
         if (ent.type === 'coke') {
-            ent.y += 3; // Fall mechanics
+            ent.y += 3;
             if (checkCollision(henny, ent)) {
                 henny.cokeMeter = Math.min(100, henny.cokeMeter + 20);
                 henny.flavor = ent.flavor;
-                henny.flavorTimer = 300; // 5 seconds uptime
+                henny.flavorTimer = 300;
                 flavorBadge.innerText = `${ent.flavor} Coke: ${FLAVORS[ent.flavor].buff}`;
                 flavorBadge.classList.remove('hidden');
                 spawnParticle(ent.x, ent.y, FLAVORS[ent.flavor].color);
@@ -220,19 +210,16 @@ function update() {
             }
         }
 
-        // Combat Hitboxes Verification
         if (ent.type === 'dragon' || ent.type === 'boss') {
             let hit = false;
             let dmg = henny.flavor === 'Cherry' ? 2 : 1;
 
-            // 1. Check Henny Slashes
             if (henny.isSlashing && Math.abs((henny.x + 40) - ent.x) < 60 && Math.abs(henny.y - ent.y) < 50) {
                 hit = true;
             }
-            // 2. Check Bulleh Shah Attacks
             if (bullehShah.isAttacking && checkCollision(bullehShah, ent)) {
                 hit = true;
-                dmg = 2; // Cat Claws pierce heavily
+                dmg = 2;
             }
 
             if (hit) {
@@ -252,23 +239,19 @@ function update() {
             }
         }
 
-        // Cleanup offscreen boundaries
         if (ent.x < -100 || ent.y > 450) {
             entities.splice(i, 1);
         }
     }
 
-    // Particle pipeline resolution
     for (let idx = particleSystem.length - 1; idx >= 0; idx--) {
         const p = particleSystem[idx];
         p.x += p.vx; p.y += p.vy; p.life--;
         if (p.life <= 0) particleSystem.splice(idx, 1);
     }
 
-    // Death monitoring conditions
     if (henny.health <= 0) endGame(false);
 
-    // Sync state metrics to UI
     healthDisplay.innerText = Math.max(0, henny.health);
     cokeDisplay.innerText = henny.cokeMeter;
     scoreDisplay.innerText = score;
@@ -279,55 +262,56 @@ function checkCollision(r1, r2) {
            r1.y < r2.y + r2.height && r1.y + r1.height > r2.y;
 }
 
-// Upgraded High-Visual-Appeal Rendering Engine
+// Rendering Engine
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 1. Stylized Parallax Vapor/Castle Backdrop
+    // 1. Stylized Parallax Castle Backdrop
     let bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGrad.addColorStop(0, '#140c1c'); // Dark fantasy sky
-    bgGrad.addColorStop(1, '#2c1635'); // Deep magical purple horizon
+    bgGrad.addColorStop(0, '#140c1c'); 
+    bgGrad.addColorStop(1, '#2c1635'); 
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-// Distant Neon Castle Spires & Pillars
-ctx.fillStyle = '#1c0f24';
-ctx.fillRect(40, 100, 90, 260);
-ctx.fillRect(70, 50, 30, 50); // Left Tower Tip
-ctx.fillRect(660, 80, 110, 280);
-ctx.fillRect(700, 20, 30, 60);  // Right Tower Tip
-// Glowing Moon / Magic Orb Background Detail
-ctx.fillStyle = 'rgba(255, 244, 220, 0.05)';
-ctx.beginPath(); ctx.arc(400, 100, 60, 0, Math.PI * 2); ctx.fill();
-ctx.fillStyle = 'rgba(255, 244, 220, 0.02)';
-ctx.beginPath(); ctx.arc(400, 100, 85, 0, Math.PI * 2); ctx.fill();
-// 2. High-Tech Synth Floor Grid / Surface
-ctx.fillStyle = '#1f1326';
-ctx.fillRect(0, 360, canvas.width, 40);
-ctx.strokeStyle = '#F40009'; // Red Grid Line Accent
-ctx.lineWidth = 3;
-ctx.beginPath();
-ctx.moveTo(0, 360);
-ctx.lineTo(canvas.width, 360);
-ctx.stroke();
-// 3. Draw Bulleh Shah (The Cute Orange Warrior Cat Sidekick)
-ctx.fillStyle = '#ff9233'; // Vibrant Orange Tabby Body
+    ctx.fillStyle = '#1c0f24';
+    ctx.fillRect(40, 100, 90, 260);
+    ctx.fillRect(70, 50, 30, 50); 
+    ctx.fillRect(660, 80, 110, 280);
+    ctx.fillRect(700, 20, 30, 60);  
+    
+    ctx.fillStyle = 'rgba(255, 244, 220, 0.05)';
+    ctx.beginPath(); ctx.arc(400, 100, 60, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255, 244, 220, 0.02)';
+    ctx.beginPath(); ctx.arc(400, 100, 85, 0, Math.PI * 2); ctx.fill();
+
+    // 2. Surface Floor
+    ctx.fillStyle = '#1f1326';
+    ctx.fillRect(0, 360, canvas.width, 40);
+    ctx.strokeStyle = '#F40009'; 
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, 360);
+    ctx.lineTo(canvas.width, 360);
+    ctx.stroke();
+
+    // 3. Draw Bulleh Shah
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 10px "Courier New", monospace';
+    ctx.textAlign = 'center';
+ctx.fillText('BULLEH SHAH', bullehShah.x + (bullehShah.width / 2), bullehShah.y - 6);
+ctx.fillStyle = '#ff9233';
 ctx.fillRect(bullehShah.x, bullehShah.y + 6, bullehShah.width, bullehShah.height - 6);
-ctx.fillStyle = '#e67300'; // Darker orange inner ears
+ctx.fillStyle = '#e67300';
 ctx.fillRect(bullehShah.x + 2, bullehShah.y, 6, 8);
 ctx.fillRect(bullehShah.x + 16, bullehShah.y, 6, 8);
-// Tail
 ctx.fillStyle = '#ff9233';
 ctx.fillRect(bullehShah.x - 6, bullehShah.y + 12, 8, 5);
-// Bulleh Shah's Cat Eyes
-ctx.fillStyle = '#00ffcc'; // Glowing Jade Eyes
+ctx.fillStyle = '#00ffcc';
 ctx.fillRect(bullehShah.x + 18, bullehShah.y + 10, 4, 4);
-// Sharp Claws Special Ability Attack Visual FX
 if (bullehShah.isAttacking) {
 ctx.strokeStyle = 'rgba(0, 255, 204, 0.8)';
 ctx.lineWidth = 3;
 ctx.beginPath();
-// Draw 3 distinct swipe claw marks
 for (let o = -5; o <= 5; o += 5) {
 ctx.moveTo(bullehShah.x + 20, bullehShah.y + 12 + o);
 ctx.lineTo(bullehShah.x + 50, bullehShah.y + 5 + o);
@@ -335,20 +319,19 @@ ctx.lineTo(bullehShah.x + 50, bullehShah.y + 5 + o);
 ctx.stroke();
 }
 // 4. Draw Main Character Hero: Henny
-// Tunic Dress
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 12px "Courier New", monospace';
+ctx.textAlign = 'center';
+ctx.fillText('HENNY', henny.x + (henny.width / 2), henny.y - 12);
 ctx.fillStyle = '#ff6b8b';
 ctx.fillRect(henny.x, henny.y + 15, henny.width, henny.height - 15);
-// Head / Skin
 ctx.fillStyle = '#ffd1dc';
 ctx.fillRect(henny.x + 6, henny.y - 2, henny.width - 12, 18);
-// Long Warrior Hair
 ctx.fillStyle = '#42210b';
-ctx.fillRect(henny.x - 2, henny.y - 6, henny.width + 4, 10); // Top hair
-ctx.fillRect(henny.x - 3, henny.y, 6, 35); // Left hair strand
-ctx.fillRect(henny.x + henny.width - 3, henny.y, 6, 35); // Right strand
-// Henny's Glowing Sword / Attack Slash Overlay
+ctx.fillRect(henny.x - 2, henny.y - 6, henny.width + 4, 10);
+ctx.fillRect(henny.x - 3, henny.y, 6, 35);
+ctx.fillRect(henny.x + henny.width - 3, henny.y, 6, 35);
 if (henny.isSlashing) {
-// Energized blade trail
 let bladeGrad = ctx.createLinearGradient(henny.x, henny.y, henny.x + 60, henny.y);
 bladeGrad.addColorStop(0, '#ffffff');
 bladeGrad.addColorStop(1, henny.flavor === 'Cherry' ? '#ff003c' : '#00bfff');
@@ -360,22 +343,18 @@ ctx.lineTo(henny.x + henny.width + 40, henny.y + 35);
 ctx.closePath();
 ctx.fill();
 } else {
-// Holstered Crimson pommel hilt handle on back
 ctx.fillStyle = '#8c92ac';
 ctx.fillRect(henny.x - 6, henny.y + 10, 8, 25);
-ctx.fillStyle = '#ffd700'; // Gold pommel accent
+ctx.fillStyle = '#ffd700';
 ctx.fillRect(henny.x - 8, henny.y + 30, 12, 4);
 }
-// 5. Draw Dynamic Adversaries and Coca-Cola Drop Objects
+// 5. Draw Obstacles & Items
 entities.forEach(ent => {
 if (ent.type === 'dragon') {
-// Elegant Crimson Flying Dragon Profile
-ctx.fillStyle = '#990012'; // Deep dragon scale red
+ctx.fillStyle = '#990012';
 ctx.fillRect(ent.x, ent.y, ent.width, ent.height);
-// Glowing Demonic Yellow Dragon Eye
 ctx.fillStyle = '#ffea00';
 ctx.fillRect(ent.x + 8, ent.y + 8, 5, 5);
-// Flapping Jagged Dragon Wings
 ctx.fillStyle = '#ff2a4b';
 let wingWave = Math.sin(spawnTimer * 0.2) * 15;
 ctx.beginPath();
@@ -386,13 +365,10 @@ ctx.closePath();
 ctx.fill();
 }
 if (ent.type === 'boss') {
-// Giant Flying Dragon Elder Boss
-ctx.fillStyle = '#3a0007'; // Obsidian scales
+ctx.fillStyle = '#3a0007';
 ctx.fillRect(ent.x, ent.y, ent.width, ent.height);
-// Giant glowing evil eye
 ctx.fillStyle = '#ff0055';
 ctx.fillRect(ent.x + 15, ent.y + 20, 12, 12);
-// Massive Dragon Wings
 ctx.fillStyle = '#7a0010';
 let bossWing = Math.sin(spawnTimer * 0.1) * 30;
 ctx.beginPath();
@@ -401,14 +377,12 @@ ctx.lineTo(ent.x + 10, ent.y - 30 + bossWing);
 ctx.lineTo(ent.x + 70, ent.y + 20);
 ctx.closePath();
 ctx.fill();
-// Minimalist Boss Health Bar frame
 ctx.fillStyle = 'rgba(0,0,0,0.5)';
 ctx.fillRect(ent.x, ent.y - 20, ent.width, 8);
 ctx.fillStyle = '#ff0055';
 ctx.fillRect(ent.x, ent.y - 20, ent.width * (ent.health / 10), 8);
 }
 if (ent.type === 'fireball') {
-// Fire projectile core bloom effects
 let fireGrad = ctx.createRadialGradient(ent.x+7, ent.y+7, 2, ent.x+7, ent.y+7, 8);
 fireGrad.addColorStop(0, '#ffffff');
 fireGrad.addColorStop(0.4, '#ff9900');
@@ -417,10 +391,8 @@ ctx.fillStyle = fireGrad;
 ctx.beginPath(); ctx.arc(ent.x + 7, ent.y + 7, 10, 0, Math.PI*2); ctx.fill();
 }
 if (ent.type === 'coke') {
-// High-fidelity Coca-Cola Can Branding Models
 ctx.fillStyle = FLAVORS[ent.flavor].color;
 ctx.fillRect(ent.x, ent.y, ent.width, ent.height);
-// Iconic Metallic Silver/White Swirl Ribbon Banner Accent
 ctx.fillStyle = '#ffffff';
 ctx.beginPath();
 ctx.moveTo(ent.x, ent.y + 16);
@@ -429,18 +401,16 @@ ctx.lineTo(ent.x + ent.width, ent.y + 21);
 ctx.bezierCurveTo(ent.x + 14, ent.y + 25, ent.x + 6, ent.y + 15, ent.x, ent.y + 19);
 ctx.closePath();
 ctx.fill();
-// Silver pull tab topper rim
 ctx.fillStyle = '#b0b7bd';
 ctx.fillRect(ent.x + 2, ent.y - 2, ent.width - 4, 2);
 }
 });
-// 6. Particle Burst Expulsion Engine Pipelines
+// 6. Particles
 particleSystem.forEach(p => {
 ctx.fillStyle = p.color;
 ctx.fillRect(p.x, p.y, 3, 3);
 });
 }
-// Master Loop Orchestrators
 function gameLoop() {
 update();
 draw();
