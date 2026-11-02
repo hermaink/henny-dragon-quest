@@ -1,10 +1,9 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-// Fix Canvas Text Stretching & Resolution on Retina/Mobile screens
+
 function fixCanvasResolution() {
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = 800; // Locks engine coordinate math width
-    canvas.height = 400; // Locks engine coordinate math height
+    canvas.width = 800; 
+    canvas.height = 400; 
 }
 window.addEventListener('resize', fixCanvasResolution);
 fixCanvasResolution();
@@ -24,10 +23,11 @@ let gameActive = false;
 let score = 0;
 let keys = {};
 
-// Hero State (Henny)
+// Hero State (Henny) with Jumping Physics
 const henny = {
     x: 100, y: 300, width: 40, height: 60,
     speed: 5, baseSpeed: 5,
+    vy: 0, gravity: 0.6, jumpForce: -13, isJumping: false, groundY: 300,
     health: 100, cokeMeter: 0,
     isSlashing: false, slashTimer: 0,
     flavor: 'Classic', flavorTimer: 0
@@ -62,6 +62,7 @@ function setupTouchControls() {
     };
     bindTouch('btn-left', 'ArrowLeft');
     bindTouch('btn-right', 'ArrowRight');
+    bindTouch('btn-jump', 'ArrowUp');
     
     const slashBtn = document.getElementById('btn-slash');
     if (slashBtn) slashBtn.addEventListener('touchstart', (e) => { e.preventDefault(); triggerSlash(); });
@@ -107,6 +108,10 @@ function initGame() {
     henny.health = 100;
     henny.cokeMeter = 0;
     henny.flavor = 'Classic';
+    henny.x = 100;
+    henny.y = 300;
+    henny.vy = 0;
+    henny.isJumping = false;
     entities = [];
     particleSystem = [];
     bossMode = false;
@@ -126,9 +131,28 @@ function endGame(victory = false) {
 function update() {
     if (!gameActive) return;
 
+    // Run Mechanics
     henny.speed = henny.flavor === 'Diet' ? henny.baseSpeed * 1.8 : henny.baseSpeed;
     if (keys['ArrowLeft'] && henny.x > 0) henny.x -= henny.speed;
     if (keys['ArrowRight'] && henny.x < canvas.width - henny.width) henny.x += henny.speed;
+    
+    // Jump Mechanics (Up Arrow, W key)
+    if ((keys['ArrowUp'] || keys['w']) && !henny.isJumping) {
+        henny.vy = henny.jumpForce;
+        henny.isJumping = true;
+    }
+    
+    // Apply Gravity Physics
+    henny.vy += henny.gravity;
+    henny.y += henny.vy;
+    
+    // Floor Collision Check
+    if (henny.y >= henny.groundY) {
+        henny.y = henny.groundY;
+        henny.vy = 0;
+        henny.isJumping = false;
+    }
+
     if (keys[' '] || keys['f']) triggerSlash();
     if (keys['c'] || keys['e']) triggerClaw();
 
@@ -140,6 +164,7 @@ function update() {
         }
     }
 
+    // Companion AI state updates (follows Henny offset smoothly)
     if (bullehShah.isAttacking) {
         bullehShah.x += (bullehShah.targetX - bullehShah.x) * 0.15;
         bullehShah.y += (bullehShah.targetY - bullehShah.y) * 0.15;
@@ -278,37 +303,33 @@ function draw() {
     let bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
     bgGrad.addColorStop(0, '#140c1c'); 
     bgGrad.addColorStop(1, '#2c1635'); 
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = '#1c0f24';
-    ctx.fillRect(40, 100, 90, 260);
-    ctx.fillRect(70, 50, 30, 50); 
-    ctx.fillRect(660, 80, 110, 280);
-    ctx.fillRect(700, 20, 30, 60);  
-    
-    ctx.fillStyle = 'rgba(255, 244, 220, 0.05)';
-    ctx.beginPath(); ctx.arc(400, 100, 60, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = 'rgba(255, 244, 220, 0.02)';
-    ctx.beginPath(); ctx.arc(400, 100, 85, 0, Math.PI * 2); ctx.fill();
-
-    // 2. Surface Floor
-    ctx.fillStyle = '#1f1326';
-    ctx.fillRect(0, 360, canvas.width, 40);
-    ctx.strokeStyle = '#F40009'; 
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(0, 360);
-    ctx.lineTo(canvas.width, 360);
-    ctx.stroke();
-
-    // 3. Draw Bulleh Shah
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 10px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('BULLEH SHAH', bullehShah.x + (bullehShah.width / 2), bullehShah.y - 6);
-    ctx.fillStyle = '#ff9233';
-    ctx.fillRect(bullehShah.x, bullehShah.y + 6, bullehShah.width, bullehShah.height - 6);
+ctx.fillStyle = bgGrad;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillStyle = '#1c0f24';
+ctx.fillRect(40, 100, 90, 260);
+ctx.fillRect(70, 50, 30, 50);
+ctx.fillRect(660, 80, 110, 280);
+ctx.fillRect(700, 20, 30, 60);
+ctx.fillStyle = 'rgba(255, 244, 220, 0.05)';
+ctx.beginPath(); ctx.arc(400, 100, 60, 0, Math.PI * 2); ctx.fill();
+ctx.fillStyle = 'rgba(255, 244, 220, 0.02)';
+ctx.beginPath(); ctx.arc(400, 100, 85, 0, Math.PI * 2); ctx.fill();
+// 2. Surface Floor
+ctx.fillStyle = '#1f1326';
+ctx.fillRect(0, 360, canvas.width, 40);
+ctx.strokeStyle = '#F40009';
+ctx.lineWidth = 3;
+ctx.beginPath();
+ctx.moveTo(0, 360);
+ctx.lineTo(canvas.width, 360);
+ctx.stroke();
+// 3. Draw Bulleh Shah
+ctx.fillStyle = '#ffffff';
+ctx.font = 'bold 10px "Courier New", monospace';
+ctx.textAlign = 'center';
+ctx.fillText('BULLEH SHAH', bullehShah.x + (bullehShah.width / 2), bullehShah.y - 6);
+ctx.fillStyle = '#ff9233';
+ctx.fillRect(bullehShah.x, bullehShah.y + 6, bullehShah.width, bullehShah.height - 6);
 ctx.fillStyle = '#e67300';
 ctx.fillRect(bullehShah.x + 2, bullehShah.y, 6, 8);
 ctx.fillRect(bullehShah.x + 16, bullehShah.y, 6, 8);
