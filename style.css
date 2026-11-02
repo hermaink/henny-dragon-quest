@@ -17,17 +17,17 @@ body {
     align-items: center;
     min-height: 100vh;
     width: 100vw;
-    overflow: hidden;
-    padding: 10px;
+    overflow-x: hidden;
+    padding: 15px;
 }
 
-/* Master Game Layout Box */
+/* Main Game Window */
 #game-container {
     position: relative;
     width: 100%;
     max-width: 800px;
     height: auto;
-    aspect-ratio: 2 / 1; /* Locks perfect proportion canvas matrix */
+    aspect-ratio: 2 / 1; /* Keeps internal canvas box perfectly proportioned */
     background: #000;
     border: 3px solid #F40009;
     border-radius: 8px;
@@ -41,7 +41,7 @@ canvas {
     object-fit: contain;
 }
 
-/* UI Top Stats Bar */
+/* Top Bar Stats Display */
 #ui-overlay {
     position: absolute;
     top: 10px;
@@ -80,7 +80,7 @@ canvas {
 
 .hidden { display: none !important; }
 
-/* Menu Screens */
+/* Menu Overlays */
 .screen {
     position: absolute;
     top: 0;
@@ -119,61 +119,63 @@ button#start-btn {
     border-radius: 4px;
 }
 
-/* Redesigned Touch Control Layer - Overlays directly over the gameplay canvas corners safely */
+/* Portrait Mode Input Pad: Placed safely underneath the game window box layout stream */
 #mobile-controls {
-    display: none; /* Controlled by Media Query below */
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    display: none; /* Hidden on desktop screens */
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px; /* Creates clean spacing right below the canvas */
     justify-content: space-between;
+    align-items: center;
     pointer-events: none;
-    z-index: 20;
 }
 
 .d-pad, .action-buttons {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     pointer-events: auto;
 }
 
 .ctrl-btn {
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.3); /* Slightly brighter background for clear visibility */
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    width: 54px;
+    height: 54px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     color: white;
     border-radius: 50%;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: bold;
     display: flex;
     justify-content: center;
     align-items: center;
     outline: none;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
 .ctrl-btn:active {
     background: rgba(244, 0, 9, 0.9);
     border-color: #fff;
+    transform: scale(0.95);
 }
 
 .action-btn {
-    width: 60px;
-    border-radius: 8px;
+    width: 68px;
+    border-radius: 10px;
 }
 
-/* Hardcoded Mobile Layout Fix - Forces visibility regardless of phone angle */
+/* Mobile Screens Adaptation Rules */
 @media (max-width: 850px) {
     body {
-        padding: 5px;
+        justify-content: center; /* Center the layout vertically on mobile screens */
+        padding: 10px;
     }
+    
     #game-container {
         width: 100vw;
         max-width: 100%;
-        height: auto;
     }
+    
     #mobile-controls {
-        display: flex; /* Forces buttons to re-render overlay permanently on smaller screens */
+        display: flex; /* Makes the control bar visible right under the game container */
     }
 }
