@@ -7,16 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- New Power-Up Notification Banner Zone Outside the Game Box -->
+    <div id="banner-container">
+        <div id="flavor-badge" class="hidden">Classic</div>
+    </div>
+
     <div id="game-container">
         <!-- Main Game Canvas -->
         <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        <!-- UI Overlay -->
+        <!-- UI Overlay Inside the Screen -->
         <div id="ui-overlay">
             <div class="stat-box">❤️ Henny: <span id="health-display">100</span>%</div>
             <div class="stat-box">🥤 Coke Meter: <span id="coke-display">0</span>%</div>
             <div class="stat-box">🎯 Score: <span id="score-display">0</span></div>
-            <div id="flavor-badge" class="hidden">Classic</div>
         </div>
 
         <!-- Start / Game Over Screen -->
@@ -26,7 +30,7 @@
             <button id="start-btn">PLAY GAME</button>
         </div>
 
-        <!-- Mobile Touch Controls -->
+        <!-- Mobile Touch Controls Layout -->
         <div id="mobile-controls">
             <div class="d-pad">
                 <button id="btn-left" class="ctrl-btn">◀</button>
