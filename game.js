@@ -76,6 +76,7 @@ window.addEventListener('keyup', e => keys[e.key] = false);
 startBtn.addEventListener('click', initGame);
 
 function triggerSlash() {
+    if (!gameActive) return;
     if (!henny.isSlashing) {
         henny.isSlashing = true;
         henny.slashTimer = 10;
@@ -83,6 +84,7 @@ function triggerSlash() {
 }
 
 function triggerClaw() {
+    if (!gameActive) return;
     if (!bullehShah.isAttacking) {
         bullehShah.isAttacking = true;
         bullehShah.attackTimer = 25;
@@ -136,7 +138,7 @@ function update() {
     if (keys['ArrowLeft'] && henny.x > 0) henny.x -= henny.speed;
     if (keys['ArrowRight'] && henny.x < canvas.width - henny.width) henny.x += henny.speed;
     
-    // Jump Mechanics (Up Arrow, W key)
+    // Jump Mechanics
     if ((keys['ArrowUp'] || keys['w']) && !henny.isJumping) {
         henny.vy = henny.jumpForce;
         henny.isJumping = true;
@@ -164,7 +166,7 @@ function update() {
         }
     }
 
-    // Companion AI state updates (follows Henny offset smoothly)
+    // Companion AI state updates
     if (bullehShah.isAttacking) {
         bullehShah.x += (bullehShah.targetX - bullehShah.x) * 0.15;
         bullehShah.y += (bullehShah.targetY - bullehShah.y) * 0.15;
