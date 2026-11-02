@@ -1,12 +1,9 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-function fixCanvasResolution() {
-    canvas.width = 800; 
-    canvas.height = 400; 
-}
-window.addEventListener('resize', fixCanvasResolution);
-fixCanvasResolution();
+// Explicitly lock the coordinate resolution matrix globally
+canvas.width = 800;
+canvas.height = 400;
 
 // UI Elements
 const healthDisplay = document.getElementById('health-display');
@@ -48,8 +45,8 @@ let bossMode = false;
 // Configuration Lookups
 const FLAVORS = {
     'Classic': { color: '#F40009', buff: 'None' },
-    'Cherry':  { color: '#800020', buff: 'Fire Slash (Double Damage)' },
-    'Diet':    { color: '#b0b7bd', buff: 'Supersonic Speed Boost' }
+    'Cherry':  { color: '#800020', buff: 'Fire Slash (2x DMG)' },
+    'Diet':    { color: '#b0b7bd', buff: 'Supersonic Speed' }
 };
 
 // Mobile Input Binding Engine
@@ -125,7 +122,7 @@ function endGame(victory = false) {
     gameActive = false;
     screenOverlay.classList.remove('hidden');
     screenTitle.innerText = victory ? "VICTORY!" : "GAME OVER";
-    screenDesc.innerText = victory ? `You defended the Coca-Cola Castle! Final Score: ${score}` : "The dragons overwhelmed Henny and Bulleh Shah.";
+    screenDesc.innerText = victory ? `You defended the Coca-Cola Castle! Score: ${score}` : "The dragons overwhelmed Henny and Bulleh Shah.";
     startBtn.innerText = "PLAY AGAIN";
 }
 
@@ -305,8 +302,9 @@ function draw() {
     let bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
     bgGrad.addColorStop(0, '#140c1c'); 
     bgGrad.addColorStop(1, '#2c1635'); 
-ctx.fillStyle = bgGrad;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 ctx.fillStyle = '#1c0f24';
 ctx.fillRect(40, 100, 90, 260);
 ctx.fillRect(70, 50, 30, 50);
@@ -325,7 +323,7 @@ ctx.beginPath();
 ctx.moveTo(0, 360);
 ctx.lineTo(canvas.width, 360);
 ctx.stroke();
-// 3. Draw Bulleh Shah
+// 3. Draw Bulleh Shah Name & Sprite
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 10px "Courier New", monospace';
 ctx.textAlign = 'center';
@@ -349,7 +347,7 @@ ctx.lineTo(bullehShah.x + 50, bullehShah.y + 5 + o);
 }
 ctx.stroke();
 }
-// 4. Draw Main Character Hero: Henny
+// 4. Draw Main Character Hero: Henny Name & Sprite
 ctx.fillStyle = '#ffffff';
 ctx.font = 'bold 12px "Courier New", monospace';
 ctx.textAlign = 'center';
