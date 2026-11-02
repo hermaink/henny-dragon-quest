@@ -298,9 +298,9 @@ function draw() {
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 10px "Courier New", monospace';
     ctx.textAlign = 'center';
-ctx.fillText('BULLEH SHAH', bullehShah.x + (bullehShah.width / 2), bullehShah.y - 6);
-ctx.fillStyle = '#ff9233';
-ctx.fillRect(bullehShah.x, bullehShah.y + 6, bullehShah.width, bullehShah.height - 6);
+    ctx.fillText('BULLEH SHAH', bullehShah.x + (bullehShah.width / 2), bullehShah.y - 6);
+    ctx.fillStyle = '#ff9233';
+    ctx.fillRect(bullehShah.x, bullehShah.y + 6, bullehShah.width, bullehShah.height - 6);
 ctx.fillStyle = '#e67300';
 ctx.fillRect(bullehShah.x + 2, bullehShah.y, 6, 8);
 ctx.fillRect(bullehShah.x + 16, bullehShah.y, 6, 8);
